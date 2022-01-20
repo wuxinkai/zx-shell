@@ -1,0 +1,12 @@
+{
+  "UI": {
+    "isUpdate": true
+  },
+  "bff": {
+    "isUpdate": true,
+    "configUpdate": true,
+    "mappingUpdate": true,
+    "HARBOR_IP": "update.zoomeye.org",
+    "VERSION": "2.5.0"
+  }
+ }

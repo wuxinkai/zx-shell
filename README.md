@@ -1,5 +1,13 @@
 # 全局安装 zx
 
+要求
+
+```
+安装 node Node.js >= 14.13.1
+```
+
+下载
+
 ```
 npm i -g zx
 ```
@@ -12,7 +20,7 @@ npm i -g zx
 "type": "module"
 ```
 
-然后我们需要在我们的脚本文件开头（顶部）添加特殊注释标记为 zx 脚本
+添加特殊注释标记为 zx 脚本 ,声明脚本运行环境 脚本用 env 启动的原因，是因为脚本解释器在 linux 中可能被安装于不同的目录，env 可以在系统的 PATH 目录中查找。同时，env 还规定一些系统环境变量。
 
 ```
 #！/usr/bin/env zx
@@ -20,7 +28,7 @@ npm i -g zx
 
 # 运行
 
-两种方式
+两种方式运行脚本
 
 ```
 //添加权限
@@ -78,15 +86,6 @@ await  $ `git log ${ flags } `
 
 ```
 
-请求接口
-
-```
-let resp = await fetch('https://www.baidu.com/')
-if (resp.ok) {
-  console.log(await resp.text())
-}
-```
-
 question 按步骤执行代码
 
 ```
@@ -106,13 +105,22 @@ console.log(q2)
 await sleep(3000)
 ```
 
-读取引用文件
+读取本地文件文件，
 
 ```
 let content = fs.readFileSync('./package.json')
 //2进制转十进制
 let dependencies = JSON.parse(content.toString())
 console.log(dependencies)
+```
+
+请求远端接口
+
+```
+let resp = await fetch('https://www.baidu.com/')
+if (resp.ok) {
+  console.log(await resp.text())
+}
 ```
 
 js 循环操作
@@ -146,4 +154,86 @@ cd(`${dirName}`)
 
 ```
 "echo '备注'"
+```
+
+# 通过脚本创建项目
+
+```
+#!/usr/bin/env zx
+ //定义变量
+let dirName = 'vue-demo'
+//创建项目， 必须全局安装才可以
+await $ `vue create ${dirName}`
+//近如文件夹
+await cd(`${dirName}`)
+// 删除node_modules
+await $ `rm -rf node_modules`
+//从新下载依赖
+await $ `cnpm i`
+
+await $ `npm run serve`
+```
+
+# 接口请求例子
+
+```
+
+```
+
+# pipe 管道用法
+
+# 自定打包，自定转移项目
+
+```
+#!/usr/bin/env zx
+
+//定义变量
+const UI_PATH = "./vue-demo"; //被拷贝的地址
+
+// const INSTALL_PATH = `../deployment`; //要存储的地址
+const INSTALL_PATH = `D:/1knowledge/vue3`; //vue项目
+
+//自执行函数
+void async function () {
+  try {
+    //读取本地文件
+    let configData = await fs.readFile('./installConfig.json');
+    //转成字符串
+    let config = JSON.parse(configData.toString());
+    //判断json里的属性
+    if (config.UI.isUpdate) {
+      // 拷贝文件
+      buildUI(INSTALL_PATH);
+    }
+  } catch (p) {
+    console.log(`Exit code: `);
+  }
+}();
+
+async function buildUI(INSTALL_PATH) {
+  try {
+    cd(UI_PATH);
+    await $ `cnpm i` // $ `command` 执行的命令是异步命令 要注意大部分时间其实我们是需要将其转为同步的
+    await $ `cnpm run build`;
+
+    // await $ `mv ./dist/* ${INSTALL_PATH}`; //讲dist理的所有内容转移
+
+    await $ `mv ./dist ${INSTALL_PATH}`; //数据转移
+
+    //将文件移动到哪个文件下
+    // $ `mv dist/ ${INSTALL_PATH}`;
+
+
+		//进入拷贝的盘浮
+    cd(INSTALL_PATH);
+    
+		//启动本地服务
+    await $ `http-server`;
+
+  } catch (p) {
+    console.log(`Exit code: ${p.exitCode}`);
+  }
+
+
+}
 ```
