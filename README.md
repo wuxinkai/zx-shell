@@ -226,7 +226,7 @@ async function buildUI(INSTALL_PATH) {
 
 		//进入拷贝的盘浮
     cd(INSTALL_PATH);
-    
+
 		//启动本地服务
     await $ `http-server`;
 
@@ -236,4 +236,106 @@ async function buildUI(INSTALL_PATH) {
 
 
 }
+```
+
+# 拉取 github 上所有的项目
+
+```
+//1 获取我的repo列表
+
+let data = await fetch('https://api.github.com/users/wuxinkai/repos')
+let urls = await data.json()
+//过滤掉从网上拷贝的项目
+
+//拿到数组对象中的某一项, 组成数组
+const repos = urls.filter((info) => {
+  return !info.fork
+}).map(info => info.git_url)
+
+//创建前先删除，
+await $`rm -rf backups`
+
+//创建文件夹
+await $ `mkdir backups`
+cd("./backups")
+
+//2 拉去下 git clone
+Promise.all(
+  repos.map(url => {
+    return $ `git clone ${url}`
+  })
+)
+```
+
+# 以下的包，无需导入，直接使用
+
+### chalk
+
+```
+console.log(chalk.blue('Hello world!'))
+```
+
+### fs
+
+```
+import {promises as fs} from 'fs'
+let content = await fs.readFile('./package.json')
+```
+
+### os
+
+```
+await $`cd ${os.homedir()} && mkdir example`
+```
+
+## 配置
+
+### $.shell
+
+指定要用的 bash.
+
+```
+$.shell = '/usr/bin/bash'
+
+```
+
+### $.quote
+
+指定用于在命令替换期间转义特殊字符的函数
+
+```
+
+```
+
+### 传递环境变量
+
+指定要用的 bash.
+
+```
+process.env.FOO = 'bar'
+await $`echo $FOO`
+```
+
+### 传递数组
+
+```
+let files = [1,2,3]
+await $`tar cz ${files}`
+
+```
+
+### 可以通过显式导入来使用 $ 和其他函数
+
+```
+#!/usr/bin/env node
+import {$} from 'zx'
+await $`date`
+
+```
+
+### zx 可以将 .ts 脚本编译为 .mjs 并执行它们
+
+```
+zx examples/typescript.ts
+
 ```
