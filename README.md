@@ -48,11 +48,14 @@ parseInt(await $ `ls -1`)
 切换文件夹
 
 ```
-const dirName = "text_dir";
-cd(`./${dirName}`);
-
-//在文件中创建 text01文件夹
-await $`mkdir text01`
+ const dir_name = "text_dir";
+ //判断是否存在
+ let has_file = fs.existsSync(path.join(__dirname, `./${dir_name}`))
+ if (!has_file) await $`mkdir ${dir_name}`
+ //进入文件夹
+ cd(`./${dir_name}`);
+ //在文件夹下创建文件夹
+ await $`mkdir text01`
 
 ```
 
